@@ -28,14 +28,14 @@ The notable features are:
 
 - It is compatible with **various type of camera models** and can be easily customized for other camera models.
 - 能够保存和加载创建的地图, then stella_vslam can **localize new images** based on the prebuilt maps.
-- The system is fully modular. It is designed by encapsulating several functions in separated components with easy-to-understand APIs.
+- 该系统是完全模块化的. It is designed by encapsulating several functions in separated components with easy-to-understand APIs.
 - We provided **some code snippets** to understand the core functionalities of this system.
 
-One of the noteworthy features of stella_vslam is that the system can deal with various type of camera models, such as perspective, fisheye, and equirectangular.
-If needed, users can implement extra camera models (e.g. dual fisheye, catadioptric) with ease.
+One of the noteworthy features of stella_vslam is that 该系统能在很多类型的相机模型上应用, 比如 perspective, fisheye, and equirectangular.
+如果需要, users can implement extra camera models (e.g. dual fisheye, catadioptric) with ease.
 For example, visual SLAM algorithm using **equirectangular camera models** (e.g. RICOH THETA series, insta360 series, etc) is shown above.
 
-We provided [documentation](https://stella-cv.readthedocs.io/) for installation and tutorial.
+作者提供了相关安装教程和说明 [documentation](https://stella-cv.readthedocs.io/) 
 The repository for the ROS wrapper is [stella_vslam_ros](https://github.com/stella-cv/stella_vslam_ros).
 
 ### Acknowledgements
