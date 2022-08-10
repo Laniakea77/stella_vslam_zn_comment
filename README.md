@@ -31,7 +31,7 @@ The notable features are:
 - 该系统是完全模块化的. It is designed by encapsulating several functions in separated components with easy-to-understand APIs.
 - We provided **some code snippets** to understand the core functionalities of this system.
 
-One of the noteworthy features of stella_vslam is that 该系统能在很多类型的相机模型上应用, 比如 perspective, fisheye, and equirectangular.
+One of the noteworthy features of stella_vslam is that 很多类型的相机模型可以应用在该系统中, 比如 perspective, fisheye, and equirectangular.
 如果需要, users can implement extra camera models (e.g. dual fisheye, catadioptric) with ease.
 For example, visual SLAM algorithm using **equirectangular camera models** (e.g. RICOH THETA series, insta360 series, etc) is shown above.
 
