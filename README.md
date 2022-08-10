@@ -27,7 +27,7 @@ stella_vslam is a monocular, stereo, and RGBD visual SLAM system.
 The notable features are:
 
 - It is compatible with **various type of camera models** and can be easily customized for other camera models.
-- Created maps can be **stored and loaded**, then stella_vslam can **localize new images** based on the prebuilt maps.
+- 能够保存和加载创建的地图, then stella_vslam can **localize new images** based on the prebuilt maps.
 - The system is fully modular. It is designed by encapsulating several functions in separated components with easy-to-understand APIs.
 - We provided **some code snippets** to understand the core functionalities of this system.
 
