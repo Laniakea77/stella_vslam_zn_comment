@@ -117,7 +117,7 @@ std::shared_ptr<Mat44_t> tracking_module::feed_frame(data::frame curr_frm) {
     while (is_paused()) {
         std::this_thread::sleep_for(std::chrono::microseconds(5000));
     }
-
+    // 当前帧
     curr_frm_ = curr_frm;
 
     bool succeeded = false;
@@ -139,11 +139,11 @@ std::shared_ptr<Mat44_t> tracking_module::feed_frame(data::frame curr_frm) {
 #endif
 
     // state transition
-    if (succeeded) {
+    if (succeeded) { // 跟踪成功/没丢失
         tracking_state_ = tracker_state_t::Tracking;
     }
     else if (tracking_state_ == tracker_state_t::Tracking) {
-        tracking_state_ = tracker_state_t::Lost;
+        tracking_state_ = tracker_state_t::Lost; // 跟丢了
 
         spdlog::info("tracking lost: frame {}", curr_frm_.id_);
         // if tracking is failed within 5.0 sec after initialization, reset the system

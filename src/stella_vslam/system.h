@@ -52,54 +52,64 @@ class map_database_io_base;
 
 class system {
 public:
-    //! Constructor
+    //! Constructor 构造函数
     system(const std::shared_ptr<config>& cfg, const std::string& vocab_file_path);
 
-    //! Destructor
+    //! Destructor 析构函数
     ~system();
 
     //-----------------------------------------
-    // system startup and shutdown
+    // system startup and shutdown 系统开启/关闭
 
-    //! Startup the SLAM system
+    //! 启动
     void startup(const bool need_initialize = true);
 
-    //! Shutdown the SLAM system
+    //! 终止
     void shutdown();
 
     //-----------------------------------------
-    // data I/O
+    // data I/O 数据读写
 
     //! Save the frame trajectory in the specified format
+    // 按设置格式保存轨迹
     void save_frame_trajectory(const std::string& path, const std::string& format) const;
 
     //! Save the keyframe trajectory in the specified format
+    // 按设置格式保存关键帧
     void save_keyframe_trajectory(const std::string& path, const std::string& format) const;
 
     //! Load the map database from the MessagePack file
+    // 从 MessagePack file 中载入地图
     void load_map_database(const std::string& path) const;
 
     //! Save the map database to the MessagePack file
+    // 保存地图到 MessagePack file
     void save_map_database(const std::string& path) const;
 
     //! Get the map publisher
+    // 地图publisher
     const std::shared_ptr<publish::map_publisher> get_map_publisher() const;
 
     //! Get the frame publisher
+    // 帧publisher
     const std::shared_ptr<publish::frame_publisher> get_frame_publisher() const;
 
     //-----------------------------------------
-    // module management
+    // module management 模块管理
 
     //! Enable the mapping module
+    // 使能地图模块
     void enable_mapping_module();
 
     //! Disable the mapping module
+    // 关闭地图模块
     void disable_mapping_module();
 
     //! The mapping module is enabled or not
+    // 地图模块使能状态
     bool mapping_module_is_enabled() const;
 
+    //===========回环检测模块==============//
     //! Enable the loop detector
     void enable_loop_detector();
 
@@ -110,16 +120,24 @@ public:
     bool loop_detector_is_enabled() const;
 
     //! Request loop closure
+    // 查询 KF1 和 KF2 是否回环
     bool request_loop_closure(int keyfrm1_id, int keyfrm2_id);
 
+    //===========BA模块==============//
     //! Loop BA is running or not
+    // 
     bool loop_BA_is_running() const;
 
     //! Abort the loop BA externally
+    // 终止 loop BA
     void abort_loop_BA();
+
 
     //-----------------------------------------
     // data feeding methods
+    // 数据流
+
+    // Mat44_t = Eigen::Matrix4d;
 
     std::shared_ptr<Mat44_t> feed_frame(const data::frame& frm, const cv::Mat& img);
 
@@ -184,17 +202,21 @@ public:
 
 private:
     //! Check reset request of the system
+    // 检测系统是否要求重置
     void check_reset_request();
 
     //! Pause the mapping module and the global optimization module
+    // 暂停建图和全局优化模块
     void pause_other_threads() const;
 
     //! Resume the mapping module and the global optimization module
+    // 恢复建图和全局优化模块
     void resume_other_threads() const;
 
-    //! config
+    //! config 配置
     const std::shared_ptr<config> cfg_;
     //! camera model
+    // 相机模型
     camera::base* camera_ = nullptr;
 
     //! camera database
@@ -251,6 +273,7 @@ private:
     std::atomic<bool> system_is_running_{false};
 
     //! mutex for reset flag
+    // 重置flag的mutex[互斥锁]
     mutable std::mutex mtx_reset_;
     //! reset flag
     bool reset_is_requested_ = false;

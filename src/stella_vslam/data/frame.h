@@ -46,6 +46,7 @@ public:
 
     frame() = default;
 
+    // 重载运算符
     bool operator==(const frame& frm) { return this->id_ == frm.id_; }
     bool operator!=(const frame& frm) { return !(*this == frm); }
 
