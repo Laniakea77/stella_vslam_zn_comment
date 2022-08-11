@@ -61,6 +61,7 @@ public:
 
     // Factory method for create keyframe
     static std::shared_ptr<keyframe> make_keyframe(const frame& frm);
+
     static std::shared_ptr<keyframe> make_keyframe(
         const unsigned int id, const unsigned int src_frm_id,
         const double timestamp, const Mat44_t& pose_cw, camera::base* camera,
@@ -70,6 +71,7 @@ public:
     // operator overrides
     bool operator==(const keyframe& keyfrm) const { return id_ == keyfrm.id_; }
     bool operator!=(const keyframe& keyfrm) const { return !(*this == keyfrm); }
+
     bool operator<(const keyframe& keyfrm) const { return id_ < keyfrm.id_; }
     bool operator<=(const keyframe& keyfrm) const { return id_ <= keyfrm.id_; }
     bool operator>(const keyframe& keyfrm) const { return id_ > keyfrm.id_; }
@@ -255,7 +257,6 @@ public:
 
     //-----------------------------------------
     // constant observations
-
     const frame_observation frm_obs_;
 
     //! observed markers 2D (ID to marker2d map)

@@ -47,11 +47,12 @@ public:
     frame() = default;
 
     // 重载运算符
+    // 通过帧的索引id 重载==判断两帧是否相等
     bool operator==(const frame& frm) { return this->id_ == frm.id_; }
     bool operator!=(const frame& frm) { return !(*this == frm); }
 
     /**
-     * Constructor for monocular frame
+     * 单目相机输入帧的构造函数
      * @param timestamp
      * @param camera
      * @param orb_params
@@ -59,10 +60,12 @@ public:
      * @param markers_2d
      */
     frame(const double timestamp, camera::base* camera, feature::orb_params* orb_params,
-          const frame_observation frm_obs, const std::unordered_map<unsigned int, marker2d>& markers_2d);
+          const frame_observation frm_obs,
+          const std::unordered_map<unsigned int, marker2d>& markers_2d);
 
     /**
      * Set camera pose and refresh rotation and translation
+     * 设置相机位姿, 更新旋转和平移量
      * @param pose_cw
      */
     void set_pose_cw(const Mat44_t& pose_cw);
@@ -97,6 +100,7 @@ public:
 
     /**
      * Get the translation of the camera pose
+     * 传回相机位姿的平移
      */
     Vec3_t get_trans_cw() const {
         return trans_cw_;
@@ -104,6 +108,7 @@ public:
 
     /**
      * Get the rotation of the camera pose
+     * 传回相机位姿的旋转
      */
     Mat33_t get_rot_cw() const {
         return rot_cw_;
@@ -111,6 +116,7 @@ public:
 
     /**
      * Invalidate pose
+     * 将相机位姿设置为不合法
      */
     void invalidate_pose() {
         pose_is_valid_ = false;
@@ -118,6 +124,7 @@ public:
 
     /**
      * Return true if pose is valid
+     * 查询相机位姿是否合法
      */
     bool pose_is_valid() const {
         return pose_is_valid_;
@@ -137,10 +144,12 @@ public:
      * Check observability of the landmark
      */
     bool can_observe(const std::shared_ptr<landmark>& lm, const float ray_cos_thr,
-                     Vec2_t& reproj, float& x_right, unsigned int& pred_scale_level) const;
+                     Vec2_t& reproj, float& x_right,
+                     unsigned int& pred_scale_level) const;
 
+    // 是否有路标
     bool has_landmark(const std::shared_ptr<landmark>& lm) const;
-
+    // 增加路标点到 idx帧
     void add_landmark(const std::shared_ptr<landmark>&, const unsigned int idx);
 
     std::shared_ptr<landmark> get_landmark(const unsigned int idx) const;

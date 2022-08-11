@@ -63,7 +63,8 @@ void frame::compute_bow(bow_vocabulary* bow_vocab) {
 }
 
 bool frame::can_observe(const std::shared_ptr<landmark>& lm, const float ray_cos_thr,
-                        Vec2_t& reproj, float& x_right, unsigned int& pred_scale_level) const {
+                        Vec2_t& reproj, float& x_right,
+                        unsigned int& pred_scale_level) const {
     const Vec3_t pos_w = lm->get_pos_in_world();
 
     const bool in_image = camera_->reproject_to_image(rot_cw_, trans_cw_, pos_w, reproj, x_right);

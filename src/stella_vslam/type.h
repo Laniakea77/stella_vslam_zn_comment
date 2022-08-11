@@ -114,7 +114,9 @@ inline Vec2_t operator-(const cv::Point_<T>& v1, const Vec2_t& v2) {
     return v1 + (-v2);
 }
 
-// Comparators to allow ordering of classes with id_ member (keyframes, landmarks) to be ordered by ID.
+// 比较器
+// Comparators to allow ordering of classes with id_ member (keyframes, landmarks) 
+// to be ordered by ID.
 // Assume that null pointers have an ID of infinity, i.e. nullptr > any valid pointer.
 template<class T>
 struct id_less;
@@ -129,6 +131,11 @@ struct id_less<std::shared_ptr<T>> {
 template<class T>
 struct id_less<std::weak_ptr<T>> {
     bool operator()(const std::weak_ptr<T>& a, const std::weak_ptr<T>& b) const {
+        // weak_ptr并不改变其所共享的shared_ptr实例的引用计数
+        // 存在weak_ptr指向的对象被释放掉这种情况 -> 不能使用weak_ptr直接访问对象
+        // 判断weak_ptr指向对象是否存在
+        // -> 对象存在，lock()函数返回一个指向共享对象的shared_ptr
+        // -> 对象不存在, 返回一个空shared_ptr
         return !a.expired() && (b.expired() || a.lock()->id_ < b.lock()->id_);
     }
 };

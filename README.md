@@ -145,3 +145,25 @@ The preprint can be found [here](https://arxiv.org/abs/1910.01122).
 - Mapillary AB. 2019. OpenSfM. <https://github.com/mapillary/OpenSfM>.
 - Giorgio Grisetti, Rainer Kümmerle, Cyrill Stachniss, and Wolfram Burgard. 2010. A Tutorial on Graph-Based SLAM. IEEE Transactions on Intelligent Transportation SystemsMagazine 2, 4 (2010), 31–43.
 - Rainer Kümmerle, Giorgio Grisetti, Hauke Strasdat, Kurt Konolige, and Wolfram Burgard. 2011. g2o: A general framework for graph optimization. In Proceedings of IEEE International Conference on Robotics and Automation (ICRA). 3607–3613.
+
+
+# c++11
+## 智能指针
+### shared_ptr
+引用计数智能指针, 可共享对象的所有权
+多个指针可指向一个对象
+
+
+weak_ptr并不改变其所共享的shared_ptr实例的引用计数
+
+## 多线程
+### std::mutex
+互斥锁, 用来在关键代码段需要独占访问时发出信号
+防止其他线程并发执行时, 访问相同的内存位置
+- 如果互斥锁当前没有被任何线程锁住，调用线程将锁住它(从这一点开始，直到unlock()被调用，线程拥有互斥锁)。  
+- 如果互斥锁当前被另一个线程锁定，调用线程的执行将被阻塞，直到另一个线程执行unlock()(其他非锁定线程继续执行)。  
+- 如果互斥对象当前被调用此函数的同一线程锁定，则会产生死锁(行为未定义)。
+
+### lock_guard
+创建即加锁，作用域结束自动析构并解锁，无需手工解锁
+

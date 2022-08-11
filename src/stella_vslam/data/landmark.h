@@ -24,27 +24,51 @@ class landmark : public std::enable_shared_from_this<landmark> {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    //! Data structure for sorting keyframes by ID for consistent results in local map cleaning/BA
-    using observations_t = std::map<std::weak_ptr<keyframe>, unsigned int, id_less<std::weak_ptr<keyframe>>>;
+    //! Data structure for sorting keyframes by ID 
+    // for consistent results in local map cleaning/BA
+    //! 第三个参数可看做排序函数, 定义了map中key值的排序规则
+    using observations_t = std::map<std::weak_ptr<keyframe>, unsigned int,
+                                    id_less<std::weak_ptr<keyframe>>>;
 
     //! constructor
+    /**
+     * @brief Construct a new landmark object
+     * 
+     * @param pos_w 点的世界坐标
+     * @param ref_keyfrm 对应的关键帧
+     */
     landmark(const Vec3_t& pos_w, const std::shared_ptr<keyframe>& ref_keyfrm);
 
     //! constructor for map loading with computing parameters which can be recomputed
+    /**
+     * @brief ?
+     *  
+     * @param id 
+     * @param first_keyfrm_id 
+     * @param pos_w 
+     * @param ref_keyfrm 
+     * @param num_visible 
+     * @param num_found 
+     */
     landmark(const unsigned int id, const unsigned int first_keyfrm_id,
              const Vec3_t& pos_w, const std::shared_ptr<keyframe>& ref_keyfrm,
              const unsigned int num_visible, const unsigned int num_found);
 
     virtual ~landmark();
 
-    //! set world coordinates of this landmark
+    //! 设置路标点(提出来的特征点)世界坐标
     void set_pos_in_world(const Vec3_t& pos_w);
-    //! get world coordinates of this landmark
+
+    //! 取路标点(提出来的特征点)世界坐标
     Vec3_t get_pos_in_world() const;
 
-    //! get mean normalized vector of keyframe->lm vectors, for keyframes such that observe the 3D point.
+    //! get mean normalized vector of keyframe->lm vectors,
+    // for keyframes such that observe the 3D point.
+    // ???
     Vec3_t get_obs_mean_normal() const;
+
     //! get reference keyframe, a keyframe at the creation of a given 3D point
+    // 取对应 3D landmark 的关键帧
     std::shared_ptr<keyframe> get_ref_keyframe() const;
 
     //! add observation
@@ -154,7 +178,8 @@ private:
     // parameters for prediction
     //! true if the landmark has valid prediction parameters
     std::atomic<bool> has_valid_prediction_parameters_{false};
-    //! Normalized average vector (unit vector) of keyframe->lm, for keyframes such that observe the 3D point.
+    //! Normalized average vector (unit vector) of keyframe->lm,
+    // for keyframes such that observe the 3D point.
     Vec3_t mean_normal_ = Vec3_t::Zero();
     //! max valid distance between landmark and camera
     float min_valid_dist_ = 0;

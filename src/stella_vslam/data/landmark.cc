@@ -52,46 +52,65 @@ std::shared_ptr<keyframe> landmark::get_ref_keyframe() const {
 
 void landmark::add_observation(const std::shared_ptr<keyframe>& keyfrm, unsigned int idx) {
     std::lock_guard<std::mutex> lock(mtx_observations_);
+    // id_ 关键帧的id
     SPDLOG_TRACE("landmark::add_observation {} {} {}", id_, keyfrm->id_, idx);
     assert(!static_cast<bool>(observations_.count(keyfrm)));
+    // 在map中添加 key=keyfrm,value=idx 的关键帧
     observations_[keyfrm] = idx;
     assert(static_cast<bool>(observations_.count(keyfrm)));
 
     has_valid_prediction_parameters_ = false;
     has_representative_descriptor_ = false;
 
-    if (!keyfrm->frm_obs_.stereo_x_right_.empty() && 0 <= keyfrm->frm_obs_.stereo_x_right_.at(idx)) {
-        num_observations_ += 2;
+    if (!keyfrm->frm_obs_.stereo_x_right_.empty() && // 双目
+        0 <= keyfrm->frm_obs_.stereo_x_right_.at(idx)) { //
+        num_observations_ += 2; // 加入两个关键帧
     }
-    else {
+    else { // 单目
         num_observations_ += 1;
     }
+    // 为啥不unlock
 }
 
+/**
+ * @brief 删掉地图中的一个关键帧
+ * 
+ * @param map_db 存储地图的数据库
+ * @param keyfrm 要删除的关键帧
+ */
 void landmark::erase_observation(map_database* map_db, const std::shared_ptr<keyframe>& keyfrm) {
-    bool discard = false;
+    bool discard = false; // ?
     {
+        // 创建即加锁，作用域结束自动析构并解锁，无需手工解锁
         std::lock_guard<std::mutex> lock(mtx_observations_);
+        SPDLOG_TRACE("清理冗余关键点");
         SPDLOG_TRACE("landmark::erase_observation {} {}", id_, keyfrm->id_);
-
+        // std::map.count() 
+        // 对map中特定的元素进行计数, 存在返回1, 否则返回0
         assert(observations_.count(keyfrm));
+        // 返回要删除关键帧的id
         int idx = observations_.at(keyfrm);
+        // 双目
         if (!keyfrm->frm_obs_.stereo_x_right_.empty() && 0 <= keyfrm->frm_obs_.stereo_x_right_.at(idx)) {
             num_observations_ -= 2;
         }
-        else {
+        else { // 单目
             num_observations_ -= 1;
         }
 
+        // 从observations map 中删除
         observations_.erase(keyfrm);
 
         has_valid_prediction_parameters_ = false;
         has_representative_descriptor_ = false;
 
-        if (observations_.empty()) {
+        if (observations_.empty()) { // 空了// 观测区域没有地图点了
             discard = true;
         }
+        // weak_ptr<keyframe> ref_keyfrm_;
+        // 地图点对应的关键帧 就是 要删的关键帧
         else if (ref_keyfrm_.lock()->id_ == keyfrm->id_) {
+            // 观测中存在关键帧的第一帧
             ref_keyfrm_ = observations_.begin()->first.lock();
         }
         assert(discard || observations_.count(ref_keyfrm_));

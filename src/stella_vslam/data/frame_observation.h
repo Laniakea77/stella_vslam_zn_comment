@@ -20,20 +20,30 @@ struct frame_observation {
         : num_keypts_(num_keypts), descriptors_(descriptors), undist_keypts_(undist_keypts), bearings_(bearings),
           stereo_x_right_(stereo_x_right), depths_(depths), keypt_indices_in_cells_(keypt_indices_in_cells) {}
 
-    //! number of keypoints
+    //! 关键点的数目
     unsigned int num_keypts_ = 0;
-    //! descriptors
+
+    //! descriptors 描述子
     cv::Mat descriptors_;
+
     //! undistorted keypoints of monocular or stereo left image
+    // 单目或双目左视图的非畸变的关键点
     std::vector<cv::KeyPoint> undist_keypts_;
+
     //! bearing vectors
+    // 由相机指向 landmark
     eigen_alloc_vector<Vec3_t> bearings_;
+
     //! disparities
     std::vector<float> stereo_x_right_;
+
     //! depths
     std::vector<float> depths_;
+
     //! keypoint indices in each of the cells
-    std::vector<std::vector<std::vector<unsigned int>>> keypt_indices_in_cells_;
+    std::vector<
+      std::vector<
+        std::vector<unsigned int>>> keypt_indices_in_cells_;
 };
 
 } // namespace data
