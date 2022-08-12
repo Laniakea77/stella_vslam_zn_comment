@@ -69,7 +69,7 @@ void landmark::add_observation(const std::shared_ptr<keyframe>& keyfrm, unsigned
     else { // 单目
         num_observations_ += 1;
     }
-    // 为啥不unlock
+    // 
 }
 
 /**
@@ -88,7 +88,7 @@ void landmark::erase_observation(map_database* map_db, const std::shared_ptr<key
         // std::map.count() 
         // 对map中特定的元素进行计数, 存在返回1, 否则返回0
         assert(observations_.count(keyfrm));
-        // 返回要删除关键帧的id
+        // 返回要删除keypoint的id
         int idx = observations_.at(keyfrm);
         // 双目
         if (!keyfrm->frm_obs_.stereo_x_right_.empty() && 0 <= keyfrm->frm_obs_.stereo_x_right_.at(idx)) {
@@ -98,7 +98,7 @@ void landmark::erase_observation(map_database* map_db, const std::shared_ptr<key
             num_observations_ -= 1;
         }
 
-        // 从observations map 中删除
+        // 从observations中把关键帧给删除了???????
         observations_.erase(keyfrm);
 
         has_valid_prediction_parameters_ = false;
@@ -138,8 +138,8 @@ bool landmark::has_observation() const {
 
 int landmark::get_index_in_keyframe(const std::shared_ptr<keyframe>& keyfrm) const {
     std::lock_guard<std::mutex> lock(mtx_observations_);
-    if (observations_.count(keyfrm)) {
-        return observations_.at(keyfrm);
+    if (observations_.count(keyfrm)) { // 是否存在该关键帧
+        return observations_.at(keyfrm); // 返回该关键帧观测到的 landmark(keypoint) 的index
     }
     else {
         return -1;
@@ -163,6 +163,7 @@ cv::Mat landmark::get_descriptor() const {
 }
 
 void landmark::compute_descriptor() {
+    // 确保有 landmark 可处理
     observations_t observations;
     {
         std::lock_guard<std::mutex> lock1(mtx_observations_);
@@ -175,18 +176,19 @@ void landmark::compute_descriptor() {
 
     // Append features of corresponding points
     std::vector<cv::Mat> descriptors;
-    descriptors.reserve(observations.size());
+    descriptors.reserve(observations.size());// 能观测到 landmark 的关键帧的个数
     for (const auto& observation : observations) {
-        auto keyfrm = observation.first.lock();
-        const auto idx = observation.second;
+        auto keyfrm = observation.first.lock(); // 键key -> 关键帧
+        const auto idx = observation.second; // 值 value -> landmark id
 
         if (!keyfrm->will_be_erased()) {
             descriptors.push_back(keyfrm->frm_obs_.descriptors_.row(idx));
         }
     }
 
-    // Get median of Hamming distance
+    // Get median[中位数] of Hamming distance
     // Calculate all the Hamming distances between every pair of the features
+    // 计算每对特征点之间的汉明距离(Hamming distances)
     const auto num_descs = descriptors.size();
     std::vector<std::vector<unsigned int>> hamm_dists(num_descs, std::vector<unsigned int>(num_descs));
     for (unsigned int i = 0; i < num_descs; ++i) {

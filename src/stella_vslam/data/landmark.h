@@ -20,6 +20,9 @@ class keyframe;
 
 class map_database;
 
+
+// 该类针对的是一个一个的keypoint
+// 一个keypoint是一个对象,其id对应于能观测到它的关键帧上
 class landmark : public std::enable_shared_from_this<landmark> {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -64,7 +67,7 @@ public:
 
     //! get mean normalized vector of keyframe->lm vectors,
     // for keyframes such that observe the 3D point.
-    // ???
+    // lm vectors -> ? landmark vector
     Vec3_t get_obs_mean_normal() const;
 
     //! get reference keyframe, a keyframe at the creation of a given 3D point
@@ -77,19 +80,41 @@ public:
     void erase_observation(map_database* map_db, const std::shared_ptr<keyframe>& keyfrm);
 
     //! get observations (keyframe and keypoint idx)
+    //?? 一个关键帧里应该有很多个点, 为什么
+    /**
+     * @brief Get the observations object
+     *observations_t = std::map<std::weak_ptr<keyframe>, unsigned int,
+                                id_less<std::weak_ptr<keyframe>>>;
+     * @return observations_t 
+     */
     observations_t get_observations() const;
-    //! get number of observations
+
+    //! 返回该 landmark(keypoint) 能被几个关键帧观测到
     unsigned int num_observations() const;
-    //! whether this landmark is observed from more than zero keyframes
+
+    //! 是否有关键帧能观测到 landmark(keypoint)
     bool has_observation() const;
 
     //! get index of associated keypoint in the specified keyframe
+    // 得到指定关键帧=keyfrm 观测到 landmark(keypoint) 对应的index
     int get_index_in_keyframe(const std::shared_ptr<keyframe>& keyfrm) const;
+
     //! whether this landmark is observed in the specified keyframe
+    // 该 landmark(keypoint) 有没有在我们指定的关键帧=keyfrm 中被观测到
     bool is_observed_in_keyframe(const std::shared_ptr<keyframe>& keyfrm) const;
 
     //! check the distance between landmark and camera is in ORB scale variance
-    inline bool is_inside_in_orb_scale(const float cam_to_lm_dist, const float margin_far, const float margin_near) const {
+    /**
+     * @brief 
+     * 
+     * @param cam_to_lm_dist 相机到 landmark的距离?
+     * @param margin_far 
+     * @param margin_near 
+     * @return true 
+     * @return false 
+     */
+    inline bool is_inside_in_orb_scale(const float cam_to_lm_dist, 
+                                       const float margin_far, const float margin_near) const {
         const float max_dist = margin_far * get_max_valid_distance();
         const float min_dist = margin_near * get_min_valid_distance();
         return (min_dist <= cam_to_lm_dist && cam_to_lm_dist <= max_dist);
@@ -99,6 +124,7 @@ public:
     bool has_representative_descriptor() const;
 
     //! get representative descriptor
+    // 得到 landmark 的描述子
     cv::Mat get_descriptor() const;
 
     //! compute representative descriptor
