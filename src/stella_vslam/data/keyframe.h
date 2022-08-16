@@ -282,7 +282,7 @@ private:
     Mat44_t pose_cw_;
     //! camera pose from the current to the world
     Mat44_t pose_wc_;
-    //! camera center
+    //! camera center - 相机中心?
     Vec3_t trans_wc_;
 
     //-----------------------------------------

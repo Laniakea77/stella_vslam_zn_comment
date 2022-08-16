@@ -113,6 +113,7 @@ public:
      * @return true 
      * @return false 
      */
+    // orb2 中设置了最远和最近观测距离
     inline bool is_inside_in_orb_scale(const float cam_to_lm_dist, 
                                        const float margin_far, const float margin_near) const {
         const float max_dist = margin_far * get_max_valid_distance();
@@ -141,17 +142,21 @@ public:
     float get_max_valid_distance() const;
 
     //! predict scale level assuming this landmark is observed in the specified frame/keyframe
+    // 在假设该 landmark 能观测到的前提下, 预测在某帧中的 scale level
     unsigned int predict_scale_level(const float cam_to_lm_dist, float num_scale_levels, float log_scale_factor) const;
 
     //! erase this landmark from database
+    // 从数据库中删路标点
     void prepare_for_erasing(map_database* map_db);
     //! whether this landmark will be erased shortly or not
     bool will_be_erased();
 
     //! Make an interconnection by landmark::add_observation and keyframe::add_landmark
+    // 向关键帧中增加路标点信息
     void connect_to_keyframe(const std::shared_ptr<keyframe>& keyfrm, unsigned int idx);
 
     //! replace this with specified landmark
+    // 用指定的路标点替代
     void replace(std::shared_ptr<landmark> lm, data::map_database* map_db);
 
     void increase_num_observable(unsigned int num_observable = 1);
@@ -164,7 +169,7 @@ public:
     nlohmann::json to_json() const;
 
 public:
-    unsigned int id_;
+    unsigned int id_; // 路标点的唯一主标识 id
     static std::atomic<unsigned int> next_id_;
     unsigned int first_keyfrm_id_ = 0;
     unsigned int num_observations_ = 0;
@@ -181,9 +186,11 @@ protected:
 
 private:
     //! world coordinates of this landmark
+    // landmark的世界坐标
     Vec3_t pos_w_;
 
     //! observations (keyframe and keypoint index)
+    // 一个观测 [关键帧和关键点的index]
     observations_t observations_;
 
     //! true if the landmark has representative descriptor

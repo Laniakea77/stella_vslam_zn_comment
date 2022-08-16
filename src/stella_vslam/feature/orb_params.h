@@ -12,6 +12,7 @@ struct orb_params {
     orb_params() = delete;
 
     //! Constructor
+    // scale_factor 决定金字塔层数间缩放倍率的
     orb_params(const std::string& name, const float scale_factor, const unsigned int num_levels,
                const unsigned int ini_fast_thr, const unsigned int min_fast_thr);
     orb_params(const std::string& name);

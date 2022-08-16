@@ -116,19 +116,30 @@ std::vector<unsigned int> get_keypoints_in_cell(const camera::base* camera, cons
     return get_keypoints_in_cell(camera, frm_obs.undist_keypts_, frm_obs.keypt_indices_in_cells_, ref_x, ref_y, margin, min_level, max_level);
 }
 
-std::vector<unsigned int> get_keypoints_in_cell(const camera::base* camera, const std::vector<cv::KeyPoint>& undist_keypts,
-                                                const std::vector<std::vector<std::vector<unsigned int>>>& keypt_indices_in_cells,
-                                                const float ref_x, const float ref_y, const float margin,
-                                                const int min_level, const int max_level) {
-    std::vector<unsigned int> indices;
-    indices.reserve(undist_keypts.size());
+std::vector<unsigned int> get_keypoints_in_cell(
+                    const camera::base* camera, 
+                    const std::vector<cv::KeyPoint>& undist_keypts,
+                    const std::vector<std::vector<std::vector<unsigned int>>>& keypt_indices_in_cells,// ??
+                    const float ref_x, const float ref_y, const float margin,
+                    const int min_level, const int max_level) {
 
-    const int min_cell_idx_x = std::max(0, cvFloor((ref_x - camera->img_bounds_.min_x_ - margin) * camera->inv_cell_width_));
+    std::vector<unsigned int> indices;
+    indices.reserve(undist_keypts.size()); // 分配大小
+
+    // cvFloor : 向下取整
+    const int min_cell_idx_x = std::max(
+        0, 
+        cvFloor((ref_x - camera->img_bounds_.min_x_ - margin) * camera->inv_cell_width_));
+
     if (static_cast<int>(camera->num_grid_cols_) <= min_cell_idx_x) {
         return indices;
     }
 
-    const int max_cell_idx_x = std::min(static_cast<int>(camera->num_grid_cols_ - 1), cvCeil((ref_x - camera->img_bounds_.min_x_ + margin) * camera->inv_cell_width_));
+    const int max_cell_idx_x = std::min(
+        static_cast<int>(camera->num_grid_cols_ - 1), 
+        cvCeil((ref_x - camera->img_bounds_.min_x_ + margin) * camera->inv_cell_width_)
+        );
+
     if (max_cell_idx_x < 0) {
         return indices;
     }

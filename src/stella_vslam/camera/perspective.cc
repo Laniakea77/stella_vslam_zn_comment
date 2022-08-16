@@ -130,8 +130,13 @@ cv::Point2f perspective::convert_bearing_to_point(const Vec3_t& bearing) const {
     return cv::Point2f(fx_ * x_normalized + cx_, fy_ * y_normalized + cy_);
 }
 
-bool perspective::reproject_to_image(const Mat33_t& rot_cw, const Vec3_t& trans_cw, const Vec3_t& pos_w, Vec2_t& reproj, float& x_right) const {
+bool perspective::reproject_to_image(const Mat33_t& rot_cw, 
+                                     const Vec3_t& trans_cw,
+                                     const Vec3_t& pos_w, 
+                                     Vec2_t& reproj, 
+                                     float& x_right) const {
     // convert to camera-coordinates
+    // 转换到相机坐标系
     const Vec3_t pos_c = rot_cw * pos_w + trans_cw;
 
     // check if the point is visible
@@ -143,6 +148,7 @@ bool perspective::reproject_to_image(const Mat33_t& rot_cw, const Vec3_t& trans_
     const auto z_inv = 1.0 / pos_c(2);
     reproj(0) = fx_ * pos_c(0) * z_inv + cx_;
     reproj(1) = fy_ * pos_c(1) * z_inv + cy_;
+    
     x_right = reproj(0) - focal_x_baseline_ * z_inv;
 
     // check if the point is visible

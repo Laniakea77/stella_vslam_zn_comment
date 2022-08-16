@@ -6,14 +6,16 @@
 namespace stella_vslam {
 namespace camera {
 
+// 构造函数
 equirectangular::equirectangular(const std::string& name, const color_order_t& color_order,
                                  const unsigned int cols, const unsigned int rows, const double fps)
     : base(name, setup_type_t::Monocular, model_type_t::Equirectangular, color_order, cols, rows, fps, 0.0, 0.0, 0.0) {
     spdlog::debug("CONSTRUCT: camera::equirectangular");
 
     img_bounds_ = compute_image_bounds();
-
+    // cell 宽度的倒数
     inv_cell_width_ = static_cast<double>(num_grid_cols_) / (img_bounds_.max_x_ - img_bounds_.min_x_);
+    // cell 高度的倒数
     inv_cell_height_ = static_cast<double>(num_grid_rows_) / (img_bounds_.max_y_ - img_bounds_.min_y_);
 }
 
@@ -34,7 +36,7 @@ void equirectangular::show_parameters() const {
 
 image_bounds equirectangular::compute_image_bounds() const {
     spdlog::debug("compute image bounds");
-
+    // 0 图像高 0 图像宽
     return image_bounds{0.0, cols_, 0.0, rows_};
 }
 

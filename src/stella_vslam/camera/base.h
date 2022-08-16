@@ -13,6 +13,7 @@
 namespace stella_vslam {
 namespace camera {
 
+// 相机类型
 enum class setup_type_t {
     Monocular = 0,
     Stereo = 1,
@@ -21,6 +22,7 @@ enum class setup_type_t {
 
 const std::array<std::string, 3> setup_type_to_string = {{"Monocular", "Stereo", "RGBD"}};
 
+// 相机模型
 enum class model_type_t {
     Perspective = 0,
     Fisheye = 1,
@@ -30,6 +32,7 @@ enum class model_type_t {
 
 const std::array<std::string, 4> model_type_to_string = {{"Perspective", "Fisheye", "Equirectangular", "RadialDivision"}};
 
+// 颜色格式
 enum class color_order_t {
     Gray = 0,
     RGB = 1,
@@ -46,7 +49,7 @@ struct image_bounds {
     template<typename T, typename U>
     image_bounds(const T min_x, const U max_x, const T min_y, const U max_y)
         : min_x_(min_x), max_x_(max_x), min_y_(min_y), max_y_(max_y) {}
-
+    // 用于确定画格子时的边界?
     float min_x_ = 0.0;
     float max_x_ = 0.0;
     float min_y_ = 0.0;
@@ -99,6 +102,8 @@ public:
 
     //---------------------------
     // To be set in the base class
+    // 格点大小，最好能随图像大小做改变
+    // 将图像分为网格, 保证特征点提取均匀
 
     //! width of image
     const unsigned int cols_;
@@ -119,6 +124,7 @@ public:
     const double depth_thr_;
 
     //! number of columns of grid to accelerate reprojection matching
+    // 用于加速重投影匹配的 列数
     const unsigned int num_grid_cols_;
     //! number of rows of grid to accelerate reprojection matching
     const unsigned int num_grid_rows_;
@@ -130,6 +136,8 @@ public:
     image_bounds img_bounds_;
 
     //! cell width of grid pattern
+    // 提供关于不同平台编译的算术类型(整型、浮点型)的属性信息，如int型的最大最小值，位宽等信息
+    // 会在后面的代码中初始化
     double inv_cell_width_ = std::numeric_limits<double>::quiet_NaN();
     //! cell height of grid pattern
     double inv_cell_height_ = std::numeric_limits<double>::quiet_NaN();
@@ -153,7 +161,9 @@ public:
     virtual cv::Point2f convert_bearing_to_point(const Vec3_t& bearing) const = 0;
 
     //! Reproject the specified 3D point to image using camera pose and projection model
+    // 用相机位姿和投影模型将指定的 3D点 投影到图像上
     //! (reprojected to inside of image -> true, to outside of image -> false)
+    // 
     virtual bool reproject_to_image(const Mat33_t& rot_cw, const Vec3_t& trans_cw, const Vec3_t& pos_w, Vec2_t& reproj, float& x_right) const = 0;
 
     //! Reproject the specified 3D point to bearing vector using camera pose (Not depends on any projection models)

@@ -62,27 +62,32 @@ void frame::compute_bow(bow_vocabulary* bow_vocab) {
     bow_vocabulary_util::compute_bow(bow_vocab, frm_obs_.descriptors_, bow_vec_, bow_feat_vec_);
 }
 
-bool frame::can_observe(const std::shared_ptr<landmark>& lm, const float ray_cos_thr,
+// (猜测能否观测到)
+bool frame::can_observe(const std::shared_ptr<landmark>& lm,
+                        const float ray_cos_thr,
                         Vec2_t& reproj, float& x_right,
                         unsigned int& pred_scale_level) const {
-    const Vec3_t pos_w = lm->get_pos_in_world();
+    const Vec3_t pos_w = lm->get_pos_in_world(); // landmark的世界坐标
 
     const bool in_image = camera_->reproject_to_image(rot_cw_, trans_cw_, pos_w, reproj, x_right);
+    // landmark 是否在图像内
     if (!in_image) {
         return false;
     }
 
-    const Vec3_t cam_to_lm_vec = pos_w - trans_wc_;
-    const auto cam_to_lm_dist = cam_to_lm_vec.norm();
+    const Vec3_t cam_to_lm_vec = pos_w - trans_wc_;// 相机到landmark的向量
+    const auto cam_to_lm_dist = cam_to_lm_vec.norm(); // 相机到landmark的距离
     const auto margin_far = 1.3;
-    const auto margin_near = 1.0 / margin_far;
+    const auto margin_near = 1.0 / margin_far; // 0.77
+
+    // landmark 是否在合理的距离中
     if (!lm->is_inside_in_orb_scale(cam_to_lm_dist, margin_far, margin_near)) {
         return false;
     }
 
-    const Vec3_t obs_mean_normal = lm->get_obs_mean_normal();
+    const Vec3_t obs_mean_normal = lm->get_obs_mean_normal(); // 归一化
     const auto ray_cos = cam_to_lm_vec.dot(obs_mean_normal) / cam_to_lm_dist;
-    if (ray_cos < ray_cos_thr) {
+    if (ray_cos < ray_cos_thr) { // 如果和之前能观测到该landmark的关键帧间 normal 夹角差过大
         return false;
     }
 

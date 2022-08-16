@@ -26,6 +26,7 @@ public:
     ~projection() final = default;
 
     //! frameの2次元点と3次元の対応を求め，frame.landmarks_に対応情報を記録する
+    // 找到frame的2D点与3D点的对应关系，将对应信息记录在frame.landmarks_中
     unsigned int match_frame_and_landmarks(data::frame& frm,
                                            const std::vector<std::shared_ptr<data::landmark>>& local_landmarks,
                                            eigen_alloc_unord_map<unsigned int, Vec2_t>& lm_to_reproj,

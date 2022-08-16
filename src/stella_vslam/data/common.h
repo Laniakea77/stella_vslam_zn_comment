@@ -55,9 +55,13 @@ auto assign_keypoints_to_grid(const camera::base* camera, const std::vector<cv::
  * @param cell_idx_y
  * @return
  */
-inline bool get_cell_indices(const camera::base* camera, const cv::KeyPoint& keypt, int& cell_idx_x, int& cell_idx_y) {
+inline bool get_cell_indices(const camera::base* camera, const cv::KeyPoint& keypt, 
+                             int& cell_idx_x, int& cell_idx_y) {
+    // 行上属于哪个 cell
     cell_idx_x = cvFloor((keypt.pt.x - camera->img_bounds_.min_x_) * camera->inv_cell_width_);
+    // 列上属于哪个 cell
     cell_idx_y = cvFloor((keypt.pt.y - camera->img_bounds_.min_y_) * camera->inv_cell_height_);
+    
     return (0 <= cell_idx_x && cell_idx_x < static_cast<int>(camera->num_grid_cols_)
             && 0 <= cell_idx_y && cell_idx_y < static_cast<int>(camera->num_grid_rows_));
 }

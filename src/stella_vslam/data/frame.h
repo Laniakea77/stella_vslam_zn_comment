@@ -88,6 +88,7 @@ public:
 
     /**
      * Get camera center
+     * 得到相机的中心
      * @return
      */
     Vec3_t get_trans_wc() const;
@@ -159,14 +160,15 @@ public:
     void erase_landmark(const std::shared_ptr<landmark>& lm);
 
     std::vector<std::shared_ptr<landmark>> get_landmarks() const;
-
+    // 清楚所有landmark
     void erase_landmarks();
 
     void set_landmarks(const std::vector<std::shared_ptr<landmark>>& landmarks);
 
     /**
      * Get keypoint indices in the cell which reference point is located
-     * @param ref_x
+     * 
+     * @param ref_x reference point 的坐标
      * @param ref_y
      * @param margin
      * @param min_level

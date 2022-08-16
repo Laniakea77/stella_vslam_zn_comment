@@ -221,14 +221,15 @@ void landmark::compute_descriptor() {
     }
 }
 
+// mean_normal : 均值归一化
 void landmark::compute_mean_normal(const observations_t& observations,
                                    const Vec3_t& pos_w,
                                    Vec3_t& mean_normal) const {
     mean_normal = Vec3_t::Zero();
     for (const auto& observation : observations) {
-        auto keyfrm = observation.first.lock();
+        auto keyfrm = observation.first.lock();// 关键帧
         const Vec3_t normal = pos_w - keyfrm->get_trans_wc();
-        mean_normal = mean_normal + normal.normalized();
+        mean_normal += normal.normalized();
     }
     mean_normal = mean_normal.normalized();
 }
@@ -238,11 +239,17 @@ void landmark::compute_orb_scale_variance(const observations_t& observations,
                                           const Vec3_t& pos_w,
                                           float& max_valid_dist,
                                           float& min_valid_dist) const {
+    // 关键帧到landmark的向量
     const Vec3_t vec_ref_keyfrm_to_lm = pos_w - ref_keyfrm->get_trans_wc();
+    // 关键帧到landmark的距离
     const auto dist_ref_keyfrm_to_lm = vec_ref_keyfrm_to_lm.norm();
     assert(!observations.empty());
+    // 得到landmark的id
     const auto idx = observations.at(ref_keyfrm);
+    // octave :在特定尺寸(长宽)下，经不同高斯核模糊的图像的集合
+    // 八度的集合是高斯金字塔。
     const auto scale_level = ref_keyfrm->frm_obs_.undist_keypts_.at(idx).octave;
+    // orb_params_ : ORB feature extraction
     const auto scale_factor = ref_keyfrm->orb_params_->scale_factors_.at(scale_level);
     const auto num_scale_levels = ref_keyfrm->orb_params_->num_levels_;
 
@@ -262,6 +269,7 @@ void landmark::update_mean_normal_and_obs_scale_variance() {
         observations = observations_;
         ref_keyfrm = ref_keyfrm_.lock();
     }
+    // 路标点的世界坐标
     Vec3_t pos_w;
     {
         std::lock_guard<std::mutex> lock2(mtx_position_);
@@ -301,13 +309,18 @@ float landmark::get_max_valid_distance() const {
     return max_valid_dist_;
 }
 
-unsigned int landmark::predict_scale_level(const float cam_to_lm_dist, float num_scale_levels, float log_scale_factor) const {
+// Acquire keypoints in the cell where the reprojected 3D points exist
+unsigned int landmark::predict_scale_level(
+                        const float cam_to_lm_dist,
+                        float num_scale_levels, 
+                        float log_scale_factor) const {
+    // static_cast 隐式转换    
     float ratio;
     {
         std::lock_guard<std::mutex> lock(mtx_position_);
         ratio = max_valid_dist_ / cam_to_lm_dist;
     }
-
+    // std::ceil 向上取整
     const auto pred_scale_level = static_cast<int>(std::ceil(std::log(ratio) / log_scale_factor));
     if (pred_scale_level < 0) {
         return 0;
@@ -330,7 +343,8 @@ void landmark::prepare_for_erasing(map_database* map_db) {
         will_be_erased_ = true;
     }
 
-    for (const auto& keyfrm_and_idx : observations) {
+    for (const auto& keyfrm_and_idx : observations) {// 遍历目前存在的观测
+        // 删除对应关键帧中的路标点
         keyfrm_and_idx.first.lock()->erase_landmark_with_index(keyfrm_and_idx.second);
     }
 
@@ -349,7 +363,7 @@ void landmark::connect_to_keyframe(const std::shared_ptr<keyframe>& keyfrm, unsi
 
 void landmark::replace(std::shared_ptr<landmark> lm, data::map_database* map_db) {
     SPDLOG_TRACE("landmark::replace {} {}", id_, lm->id_);
-    if (lm->id_ == id_) {
+    if (lm->id_ == id_) { // 同一个landmark, 无需替换
         return;
     }
 
@@ -370,13 +384,13 @@ void landmark::replace(std::shared_ptr<landmark> lm, data::map_database* map_db)
         num_observed = num_observed_;
     }
 
-    for (const auto& keyfrm_and_idx : observations) {
-        const auto& keyfrm = keyfrm_and_idx.first.lock();
-        if (!lm->is_observed_in_keyframe(keyfrm)) {
-            lm->connect_to_keyframe(keyfrm, keyfrm_and_idx.second);
+    for (const auto& keyfrm_and_idx : observations) {// 遍历目前存在的观测
+        const auto& keyfrm = keyfrm_and_idx.first.lock(); // 定位到关键帧
+        if (!lm->is_observed_in_keyframe(keyfrm)) { // 路标点不在当前关键帧中
+            lm->connect_to_keyframe(keyfrm, keyfrm_and_idx.second); // 加入
         }
     }
-
+    // 增加路标点被观测到的关键帧数目
     lm->increase_num_observed(num_observed);
     lm->increase_num_observable(num_observable);
 }
