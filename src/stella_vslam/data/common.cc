@@ -185,7 +185,7 @@ std::vector<unsigned int> get_keypoints_in_cell(
                 const float dist_y = undist_keypt.pt.y - ref_y;
 
                 if (std::abs(dist_x) < margin && std::abs(dist_y) < margin) { // 在半径内
-                    indices.push_back(idx);
+                    indices.push_back(idx); // 加入
                 }
             }
         }
@@ -199,7 +199,7 @@ Vec3_t triangulate_stereo(const camera::base* camera,
                           const Vec3_t& trans_wc,
                           const frame_observation& frm_obs,
                           const unsigned int idx) {
-    assert(camera->setup_type_ != camera::setup_type_t::Monocular);
+    assert(camera->setup_type_ != camera::setup_type_t::Monocular);// 单目不用
 
     switch (camera->model_type_) {
         case camera::model_type_t::Perspective: {

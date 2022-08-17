@@ -199,21 +199,29 @@ void landmark::compute_descriptor() {
         hamm_dists.at(i).at(i) = 0; // 初始化为 0
         // 遍历之后的每一个
         for (unsigned int j = i + 1; j < num_descs; ++j) {
-            const auto dist = match::compute_descriptor_distance_32(descriptors.at(i), descriptors.at(j));
+            const auto dist = match::compute_descriptor_distance_32(
+                descriptors.at(i), 
+                descriptors.at(j));
+            
             hamm_dists.at(i).at(j) = dist;
             hamm_dists.at(j).at(i) = dist;
         }
     }
 
     // Get the nearest value to median
-    unsigned int best_median_dist = match::MAX_HAMMING_DIST;
+    // 得到离中位数最近的值
+    unsigned int best_median_dist = match::MAX_HAMMING_DIST; // (256)
     unsigned int best_idx = 0;
     for (unsigned idx = 0; idx < num_descs; ++idx) {
-        std::vector<unsigned int> partial_hamm_dists(hamm_dists.at(idx).begin(), hamm_dists.at(idx).begin() + num_descs);
+        std::vector<unsigned int> partial_hamm_dists(hamm_dists.at(idx).begin(),
+                                                     hamm_dists.at(idx).begin() + num_descs);
+        // 排序
         std::sort(partial_hamm_dists.begin(), partial_hamm_dists.end());
-        const auto median_dist = partial_hamm_dists.at(static_cast<unsigned int>(0.5 * (num_descs - 1)));
 
-        if (median_dist < best_median_dist) {
+        const auto median_dist = // 取中位数
+                partial_hamm_dists.at(static_cast<unsigned int>(0.5 * (num_descs - 1)));
+
+        if (median_dist < best_median_dist) { // 取最小中位数???
             best_median_dist = median_dist;
             best_idx = idx;
         }

@@ -146,6 +146,7 @@ public:
 
     /**
      * Erase a landmark
+     * 删除指定 landmark
      */
     void erase_landmark(const std::shared_ptr<landmark>& lm);
 
@@ -157,26 +158,34 @@ public:
     /**
      * Get all of the landmarks
      * (NOTE: including nullptr)
+     * 取所有 landmark
+     * 包括 空指针
      */
     std::vector<std::shared_ptr<landmark>> get_landmarks() const;
 
     /**
      * Get the valid landmarks
+     * 返回非空指针的 landmark
      */
     std::set<std::shared_ptr<landmark>> get_valid_landmarks() const;
 
     /**
-     * Get the number of tracked landmarks which have observers equal to or greater than the threshold
+     * Get the number of tracked landmarks which have observers equal to 
+     * or greater than the threshold
+     * 一个landmark要被观测到的超过指定的次数才认为其被tracked
+     * 返回被tracked的landmark的个数
      */
     unsigned int get_num_tracked_landmarks(const unsigned int min_num_obs_thr) const;
 
     /**
      * Get the landmark associated keypoint idx
+     * 返回keypoint id = idx 对应的landmark
      */
     std::shared_ptr<landmark>& get_landmark(const unsigned int idx);
 
     /**
      * Get the keypoint indices in the cell which reference point is located
+     * 得到在指定 cell 里的keypoint
      */
     std::vector<unsigned int> get_keypoints_in_cell(const float ref_x, const float ref_y, const float margin,
                                                     const int min_level = -1, const int max_level = -1) const;
@@ -198,6 +207,7 @@ public:
 
     /**
      * Add a marker
+     * marker好像是贴了二维码做辅助标识
      */
     void add_marker(const std::shared_ptr<marker>& mkr);
 
@@ -239,6 +249,7 @@ public:
     static std::atomic<unsigned int> next_id_;
 
     //! source frame ID
+    // 对应输入的帧序号
     const unsigned int src_frm_id_;
 
     //! timestamp in seconds
@@ -254,6 +265,7 @@ public:
     // feature extraction parameters
 
     //! ORB feature extraction model
+    // orb 提特征的参数
     const feature::orb_params* orb_params_;
 
     //-----------------------------------------

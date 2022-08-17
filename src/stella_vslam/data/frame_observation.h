@@ -9,13 +9,16 @@
 namespace stella_vslam {
 namespace data {
 
+// 观测到的特征点
 struct frame_observation {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     frame_observation() = default;
     frame_observation(unsigned int num_keypts, const cv::Mat& descriptors,
-                      const std::vector<cv::KeyPoint>& undist_keypts, const eigen_alloc_vector<Vec3_t>& bearings,
-                      const std::vector<float>& stereo_x_right, const std::vector<float>& depths,
+                      const std::vector<cv::KeyPoint>& undist_keypts, 
+                      const eigen_alloc_vector<Vec3_t>& bearings,
+                      const std::vector<float>& stereo_x_right, 
+                      const std::vector<float>& depths,
                       const std::vector<std::vector<std::vector<unsigned int>>>& keypt_indices_in_cells)
         : num_keypts_(num_keypts), descriptors_(descriptors), undist_keypts_(undist_keypts), bearings_(bearings),
           stereo_x_right_(stereo_x_right), depths_(depths), keypt_indices_in_cells_(keypt_indices_in_cells) {}
@@ -24,7 +27,7 @@ struct frame_observation {
     unsigned int num_keypts_ = 0;
 
     //! descriptors 描述子
-    cv::Mat descriptors_;
+    cv::Mat descriptors_;// ?
 
     //! undistorted keypoints of monocular or stereo left image
     // 单目或双目左视图的非畸变的关键点

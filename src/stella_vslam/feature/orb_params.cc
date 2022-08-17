@@ -35,7 +35,7 @@ nlohmann::json orb_params::to_json() const {
 }
 
 std::vector<float> orb_params::calc_scale_factors(const unsigned int num_scale_levels, const float scale_factor) {
-    std::vector<float> scale_factors(num_scale_levels, 1.0);
+    std::vector<float> scale_factors(num_scale_levels, 1.0);// 底层:原图
     for (unsigned int level = 1; level < num_scale_levels; ++level) {
         scale_factors.at(level) = scale_factor * scale_factors.at(level - 1);
     }

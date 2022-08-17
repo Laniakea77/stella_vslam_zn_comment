@@ -142,6 +142,7 @@ void frame::set_landmarks(const std::vector<std::shared_ptr<landmark>>& landmark
     }
 }
 
+// 得到在指定cell中的特征点
 std::vector<unsigned int> frame::get_keypoints_in_cell(const float ref_x, const float ref_y, const float margin, const int min_level, const int max_level) const {
     return data::get_keypoints_in_cell(camera_, frm_obs_, ref_x, ref_y, margin, min_level, max_level);
 }

@@ -249,12 +249,12 @@ unsigned int keyframe::get_num_tracked_landmarks(const unsigned int min_num_obs_
                 continue;
             }
 
-            if (min_num_obs_thr <= lm->num_observations()) {
+            if (min_num_obs_thr <= lm->num_observations()) { // 一个landmark超过指定的观测次数
                 ++num_tracked_lms;
             }
         }
     }
-    else {
+    else { // 不设阈值, 全都行
         for (const auto& lm : landmarks_) {
             if (!lm) {
                 continue;
