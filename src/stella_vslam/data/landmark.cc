@@ -177,7 +177,8 @@ void landmark::compute_descriptor() {
     // Append features of corresponding points
     std::vector<cv::Mat> descriptors;
     descriptors.reserve(observations.size());// 能观测到 landmark 的关键帧的个数
-    for (const auto& observation : observations) {
+    for (const auto& observation : observations) { // 一个 landmark 在各个帧中的观测
+
         auto keyfrm = observation.first.lock(); // 键key -> 关键帧
         const auto idx = observation.second; // 值 value -> landmark id
 
@@ -190,9 +191,13 @@ void landmark::compute_descriptor() {
     // Calculate all the Hamming distances between every pair of the features
     // 计算每对特征点之间的汉明距离(Hamming distances)
     const auto num_descs = descriptors.size();
-    std::vector<std::vector<unsigned int>> hamm_dists(num_descs, std::vector<unsigned int>(num_descs));
+    std::vector<std::vector<unsigned int>> hamm_dists(num_descs,
+                                                      // 描述子数组大小的 uint vector     
+                                                      std::vector<unsigned int>(num_descs));
+    // 遍历描述子
     for (unsigned int i = 0; i < num_descs; ++i) {
-        hamm_dists.at(i).at(i) = 0;
+        hamm_dists.at(i).at(i) = 0; // 初始化为 0
+        // 遍历之后的每一个
         for (unsigned int j = i + 1; j < num_descs; ++j) {
             const auto dist = match::compute_descriptor_distance_32(descriptors.at(i), descriptors.at(j));
             hamm_dists.at(i).at(j) = dist;

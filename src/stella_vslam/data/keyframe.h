@@ -51,6 +51,7 @@ public:
 
     /**
      * Constructor for map loading
+     * 加载地图的时候使用
      * (NOTE: some variables must be recomputed after the construction. See the definition.)
      */
     keyframe(const unsigned int id, const unsigned int src_frm_id,
@@ -62,6 +63,7 @@ public:
     // Factory method for create keyframe
     static std::shared_ptr<keyframe> make_keyframe(const frame& frm);
 
+    // 加载地图的关键帧
     static std::shared_ptr<keyframe> make_keyframe(
         const unsigned int id, const unsigned int src_frm_id,
         const double timestamp, const Mat44_t& pose_cw, camera::base* camera,
@@ -89,10 +91,6 @@ public:
      * Set camera pose
      */
     void set_pose_cw(const Mat44_t& pose_cw);
-
-    /**
-     * Set camera pose
-     */
     void set_pose_cw(const g2o::SE3Quat& pose_cw);
 
     /**
@@ -104,6 +102,7 @@ public:
      * Get the inverse of the camera pose
      */
     Mat44_t get_pose_wc() const;
+
 
     /**
      * Get the camera center
@@ -135,11 +134,13 @@ public:
 
     /**
      * Add a landmark observed by myself at keypoint idx
+     * 将自己观测到的 landmark 以 id=idx 的keypoint添加进去
      */
     void add_landmark(std::shared_ptr<landmark> lm, const unsigned int idx);
 
     /**
      * Erase a landmark observed by myself at keypoint idx
+     * 删除id=idx的keypoint[自己观测到的landmark]
      */
     void erase_landmark_with_index(const unsigned int idx);
 
@@ -291,6 +292,7 @@ private:
     //! need mutex for access to landmark observations
     mutable std::mutex mtx_observations_;
     //! observed landmarks
+    // 观测到的landmark
     std::vector<std::shared_ptr<landmark>> landmarks_;
 
     //-----------------------------------------

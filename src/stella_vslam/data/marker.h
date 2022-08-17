@@ -21,7 +21,8 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     //! constructor
-    marker(const eigen_alloc_vector<Vec3_t>& corners_pos_w, unsigned int id, const std::shared_ptr<marker_model::base>& marker_model);
+    marker(const eigen_alloc_vector<Vec3_t>& corners_pos_w, unsigned int id, 
+           const std::shared_ptr<marker_model::base>& marker_model);
 
     void set_corner_pos(const eigen_alloc_vector<Vec3_t>& corner_pos_w);
 

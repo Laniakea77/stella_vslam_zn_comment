@@ -167,10 +167,10 @@ public:
 
     /**
      * Get keypoint indices in the cell which reference point is located
-     * 
+     * 得到在指定cell中的特征点
      * @param ref_x reference point 的坐标
      * @param ref_y
-     * @param margin
+     * @param margin 半径
      * @param min_level
      * @param max_level
      * @return
@@ -203,6 +203,7 @@ public:
     frame_observation frm_obs_;
 
     //! markers 2D (ID to marker2d map)
+    // 2D marker是啥, 角点?
     std::unordered_map<unsigned int, marker2d> markers_2d_;
 
     //! BoW features (DBoW2 or FBoW)

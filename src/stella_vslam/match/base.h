@@ -14,7 +14,7 @@ static constexpr unsigned int HAMMING_DIST_THR_LOW = 50;
 static constexpr unsigned int HAMMING_DIST_THR_HIGH = 100;
 static constexpr unsigned int MAX_HAMMING_DIST = 256;
 
-//! ORB特徴量間のハミング距離を計算する
+//! 计算ORB特征点间的汉明距离
 inline unsigned int compute_descriptor_distance_32(const cv::Mat& desc_1, const cv::Mat& desc_2) {
     // http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
 

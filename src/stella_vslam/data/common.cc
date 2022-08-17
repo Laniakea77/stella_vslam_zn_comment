@@ -119,6 +119,7 @@ std::vector<unsigned int> get_keypoints_in_cell(const camera::base* camera, cons
 std::vector<unsigned int> get_keypoints_in_cell(
                     const camera::base* camera, 
                     const std::vector<cv::KeyPoint>& undist_keypts,
+                    // keypt_indices_in_cells : 第一维指定grid_x, 第二维指定grid_y,第三维指定对应特征点编号
                     const std::vector<std::vector<std::vector<unsigned int>>>& keypt_indices_in_cells,// ??
                     const float ref_x, const float ref_y, const float margin,
                     const int min_level, const int max_level) {
@@ -126,7 +127,10 @@ std::vector<unsigned int> get_keypoints_in_cell(
     std::vector<unsigned int> indices;
     indices.reserve(undist_keypts.size()); // 分配大小
 
+    // =========================START找方格位置START========================
     // cvFloor : 向下取整
+    // 找到以 (ref_x,ref_y) 为中心, margin为半径的圆内, 在金字塔层 [minLevel, maxLevel] 之间的特征点
+    // 返回满足条件的特征点的序号
     const int min_cell_idx_x = std::max(
         0, 
         cvFloor((ref_x - camera->img_bounds_.min_x_ - margin) * camera->inv_cell_width_));
@@ -153,16 +157,18 @@ std::vector<unsigned int> get_keypoints_in_cell(
     if (max_cell_idx_y < 0) {
         return indices;
     }
+    // =========================END找方格位置END========================
 
     const bool check_level = (0 < min_level) || (0 <= max_level);
-
+    // 遍历区域所占网格(所有cell)
     for (int cell_idx_x = min_cell_idx_x; cell_idx_x <= max_cell_idx_x; ++cell_idx_x) {
         for (int cell_idx_y = min_cell_idx_y; cell_idx_y <= max_cell_idx_y; ++cell_idx_y) {
+
             const auto& keypt_indices_in_cell = keypt_indices_in_cells.at(cell_idx_x).at(cell_idx_y);
             if (keypt_indices_in_cell.empty()) {
                 continue;
             }
-
+            // 遍历一个cell中的特征点
             for (unsigned int idx : keypt_indices_in_cell) {
                 const auto& undist_keypt = undist_keypts.at(idx);
 
@@ -178,7 +184,7 @@ std::vector<unsigned int> get_keypoints_in_cell(
                 const float dist_x = undist_keypt.pt.x - ref_x;
                 const float dist_y = undist_keypt.pt.y - ref_y;
 
-                if (std::abs(dist_x) < margin && std::abs(dist_y) < margin) {
+                if (std::abs(dist_x) < margin && std::abs(dist_y) < margin) { // 在半径内
                     indices.push_back(idx);
                 }
             }

@@ -52,6 +52,9 @@ keyframe::~keyframe() {
 }
 
 std::shared_ptr<keyframe> keyframe::make_keyframe(const frame& frm) {
+    // 初始化只能指针
+    // 指向 "建立在堆区上内存区域" 的指针
+    // allocate_shared 在堆区开辟一块内存空间
     auto ptr = std::allocate_shared<keyframe>(Eigen::aligned_allocator<keyframe>(), frm);
     // covisibility graph node (connections is not assigned yet)
     ptr->graph_node_ = stella_vslam::make_unique<graph_node>(ptr);
@@ -184,13 +187,14 @@ void keyframe::erase_landmark_with_index(const unsigned int idx) {
 void keyframe::erase_landmark(const std::shared_ptr<landmark>& lm) {
     std::lock_guard<std::mutex> lock(mtx_observations_);
     int idx = lm->get_index_in_keyframe(shared_from_this());
-    if (0 <= idx) {
+    if (0 <= idx) { // 存在
         landmarks_.at(static_cast<unsigned int>(idx)) = nullptr;
     }
 }
 
 void keyframe::update_landmarks() {
     std::lock_guard<std::mutex> lock(mtx_observations_);
+    // 遍历目前观测到的 landmark
     for (unsigned int idx = 0; idx < landmarks_.size(); ++idx) {
         auto lm = landmarks_.at(idx);
         if (!lm) {
@@ -201,6 +205,7 @@ void keyframe::update_landmarks() {
         }
 
         // update connection
+        // 在当前关键帧加入该关键帧
         lm->add_observation(shared_from_this(), idx);
         // update geometry
         lm->update_mean_normal_and_obs_scale_variance();
