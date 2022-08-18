@@ -16,12 +16,14 @@ namespace data {
 graph_node::graph_node(std::shared_ptr<keyframe>& keyfrm)
     : owner_keyfrm_(keyfrm), has_spanning_parent_(false) {}
 
-void graph_node::add_connection(const std::shared_ptr<keyframe>& keyfrm, const unsigned int num_shared_lms) {
-    std::lock_guard<std::mutex> lock(mtx_);
+void graph_node::add_connection(const std::shared_ptr<keyframe>& keyfrm, 
+                                const unsigned int num_shared_lms) {
+    std::lock_guard<std::mutex> lock(mtx_); // 维系共视图的
     bool need_update = false;
+
     if (!connected_keyfrms_and_num_shared_lms_.count(keyfrm)) {
         // if `keyfrm` not exists
-        connected_keyfrms_and_num_shared_lms_[keyfrm] = num_shared_lms;
+        connected_keyfrms_and_num_shared_lms_[keyfrm] = num_shared_lms; // 创建
         need_update = true;
     }
     else if (connected_keyfrms_and_num_shared_lms_.at(keyfrm) != num_shared_lms) {
@@ -66,6 +68,7 @@ void graph_node::update_connections(unsigned int min_num_shared_lms) {
     const auto owner_keyfrm = owner_keyfrm_.lock();
     const auto landmarks = owner_keyfrm->get_landmarks();
 
+    // 根据关键帧id排序的map 
     id_ordered_map<std::weak_ptr<keyframe>, unsigned int> keyfrm_and_num_shared_lms;
 
     for (const auto& lm : landmarks) {
@@ -75,17 +78,17 @@ void graph_node::update_connections(unsigned int min_num_shared_lms) {
         if (lm->will_be_erased()) {
             continue;
         }
-
+        // 观测到该 landmark 的关键帧
         const auto observations = lm->get_observations();
-
+        // 遍历观测到该landmark的关键帧
         for (const auto& obs : observations) {
             auto keyfrm = obs.first;
             auto locked_keyfrm = keyfrm.lock();
-
+            // 没有 spanning parent ??
             if (!locked_keyfrm->graph_node_->has_spanning_parent_ && locked_keyfrm->id_ != 0) {
                 continue;
             }
-            if (locked_keyfrm->id_ == owner_keyfrm->id_) {
+            if (locked_keyfrm->id_ == owner_keyfrm->id_) { // 不考虑自身
                 continue;
             }
             // count up number of shared landmarks of `keyfrm`
@@ -166,20 +169,26 @@ void graph_node::update_covisibility_orders() {
 }
 
 void graph_node::update_covisibility_orders_impl() {
+    // 
     std::vector<std::pair<unsigned int, std::shared_ptr<keyframe>>> num_shared_lms_and_keyfrm_pairs;
     num_shared_lms_and_keyfrm_pairs.reserve(connected_keyfrms_and_num_shared_lms_.size());
 
     for (const auto& keyfrm_and_num_shared_lms : connected_keyfrms_and_num_shared_lms_) {
-        num_shared_lms_and_keyfrm_pairs.emplace_back(std::make_pair(keyfrm_and_num_shared_lms.second, keyfrm_and_num_shared_lms.first.lock()));
+        num_shared_lms_and_keyfrm_pairs.emplace_back(
+            std::make_pair(keyfrm_and_num_shared_lms.second,
+                           keyfrm_and_num_shared_lms.first.lock()));
     }
 
     // sort with number of shared landmarks and keyframe IDs for consistency
-    std::sort(num_shared_lms_and_keyfrm_pairs.rbegin(), num_shared_lms_and_keyfrm_pairs.rend(), cmp_num_shared_lms_and_keyfrm_pairs);
+    std::sort(num_shared_lms_and_keyfrm_pairs.rbegin(), 
+              num_shared_lms_and_keyfrm_pairs.rend(), cmp_num_shared_lms_and_keyfrm_pairs);
 
     ordered_covisibilities_.clear();
     ordered_covisibilities_.reserve(num_shared_lms_and_keyfrm_pairs.size());
+
     ordered_num_shared_lms_.clear();
     ordered_num_shared_lms_.reserve(num_shared_lms_and_keyfrm_pairs.size());
+
     for (const auto& num_shared_lms_and_keyfrm_pair : num_shared_lms_and_keyfrm_pairs) {
         ordered_covisibilities_.push_back(num_shared_lms_and_keyfrm_pair.second);
         ordered_num_shared_lms_.push_back(num_shared_lms_and_keyfrm_pair.first);
@@ -277,6 +286,10 @@ void graph_node::set_spanning_parent(const std::shared_ptr<keyframe>& keyfrm) {
     std::lock_guard<std::mutex> lock(mtx_);
     assert(!has_spanning_parent_);
     spanning_parent_ = keyfrm;
+    // 这里为什么没有添加孩子节点 ??
+    // in graph_node::change_spanning_parent
+    // keyfrm->graph_node_->add_spanning_child(owner_keyfrm_.lock());
+}
     has_spanning_parent_ = true;
 }
 
