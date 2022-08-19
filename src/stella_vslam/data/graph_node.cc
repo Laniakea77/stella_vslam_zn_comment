@@ -301,7 +301,7 @@ std::shared_ptr<keyframe> graph_node::get_spanning_parent() const {
     std::lock_guard<std::mutex> lock(mtx_);
     return spanning_parent_.lock();
 }
-
+// 将
 void graph_node::change_spanning_parent(const std::shared_ptr<keyframe>& keyfrm) {
     std::lock_guard<std::mutex> lock(mtx_);
     spanning_parent_ = keyfrm;
@@ -322,14 +322,16 @@ void graph_node::recover_spanning_connections() {
     std::lock_guard<std::mutex> lock(mtx_);
 
     // 1. find new parents for my children
-
+    // 以当前生成树的父节点们作为 新父节点的候选
     std::set<std::shared_ptr<keyframe>> new_parent_candidates;
     new_parent_candidates.insert(spanning_parent_.lock());
-
+    // 生成树的孩子节点不为空 [这些孩子节点还没有指向对应的父节点]
     while (!spanning_children_.empty()) {
         bool max_is_found = false;
 
-        unsigned int max_num_shared_lms = 0;
+        // 初始化部分, 先都设空
+        unsigned int max_num_shared_lms = 0; // 共享最多的landmark [应该对应于orb2中的mappoint]
+        // 定义两共享最多landmark的关键帧, 谁是父节点,谁是子节点
         std::shared_ptr<keyframe> max_num_shared_lms_parent = nullptr;
         std::shared_ptr<keyframe> max_num_shared_lms_child = nullptr;
 
@@ -340,40 +342,53 @@ void graph_node::recover_spanning_connections() {
             }
 
             // get intersection between the parent candidates and the spanning-child's covisibilities
-            const auto child_covisibilities = locked_spanning_child->graph_node_->get_covisibilities();
-            const auto intersection = extract_intersection(new_parent_candidates, child_covisibilities);
+            // 得到生成树中父节点集和孩子节点共视图直接的 关键帧交集
+            const auto child_covisibilities = 
+                locked_spanning_child->graph_node_->get_covisibilities();
+            const auto intersection = 
+                extract_intersection(new_parent_candidates, child_covisibilities);
 
-            // find the new parent (which has the maximum number of shared landmarks with the spanning child) from the intersection
+            // find the new parent 
+            // (which has the maximum number of shared landmarks with the spanning child) from the intersection
             for (const auto& parent_candidate : intersection) {
+                // 当前遍历的子节点和指定的parent_candidate节点之间共享 landmark的数目
                 const auto num_shared_lms = locked_spanning_child->graph_node_->get_num_shared_landmarks(parent_candidate);
                 if (max_num_shared_lms < num_shared_lms) {
-                    max_num_shared_lms = num_shared_lms;
+                    max_num_shared_lms = num_shared_lms; // 更新最大共享landmark数
                     max_num_shared_lms_parent = parent_candidate;
                     max_num_shared_lms_child = locked_spanning_child;
                     max_is_found = true;
                 }
             }
         }
+        // 找到了权值最大 [共享路标最多的两个关键帧]
 
         if (max_is_found) {
             // update spanning tree
+            // max_num_shared_lms_parent 指定为 父节点
+            // max_num_shared_lms_child 添加到 max_num_shared_lms_parent 的子节点中
             max_num_shared_lms_child->graph_node_->change_spanning_parent(max_num_shared_lms_parent);
+            // 从未分配的生成树的孩子节点集中删掉 max_num_shared_lms_child
             spanning_children_.erase(max_num_shared_lms_child);
+            // 在 新生成树父节点候选 中, 增加max_num_shared_lms_child
             new_parent_candidates.insert(max_num_shared_lms_child);
         }
         else {
             // cannot update anymore
             break;
         }
+    // 继续while, 直到遍历完
     }
 
     // set my parent as the new parent
+    // 遍历生成树的孩子节点 [这些孩子节点都是之前连不上的]
     for (const auto& spanning_child : spanning_children_) {
         const auto child = spanning_child.lock();
         const auto parent = spanning_parent_.lock();
-        child->graph_node_->change_spanning_parent(parent);
+        // 全部分配给生成树的原始父节点
+        child->graph_node_->change_spanning_parent(parent); // ?????
     }
-
+    // 清空
     spanning_children_.clear();
 
     // 2. remove myself from my parent's children list

@@ -127,16 +127,19 @@ public:
 
     /**
      * Recover the spanning connections of the connected keyframes
+     * 更新生成树
      */
     void recover_spanning_connections();
 
     /**
      * Get the children of spanning tree
+     * 锁住线程, 取id_ordered_set<std::weak_ptr<keyframe>> spanning_children_;
      */
     std::set<std::shared_ptr<keyframe>> get_spanning_children() const;
 
     /**
      * Whether this node has the specified child or not
+     * spanning_children_ 中是否含有节点keyfrm
      */
     bool has_spanning_child(const std::shared_ptr<keyframe>& keyfrm) const;
 
