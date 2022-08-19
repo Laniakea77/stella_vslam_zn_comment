@@ -203,7 +203,8 @@ public:
     frame_observation frm_obs_;
 
     //! markers 2D (ID to marker2d map)
-    // 2D marker是啥, 角点?
+    // 2D marker是啥, 角点 
+    // slam中额外使用二维码进行定位位姿校正的Mark, 不用管
     std::unordered_map<unsigned int, marker2d> markers_2d_;
 
     //! BoW features (DBoW2 or FBoW)

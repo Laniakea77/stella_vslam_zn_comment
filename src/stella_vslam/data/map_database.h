@@ -55,18 +55,21 @@ public:
 
     /**
      * Get keyframe from the database
+     * 通过 id 在 map-database中取关键帧
      * @param id
      */
     std::shared_ptr<keyframe> get_keyframe(unsigned int id) const;
 
     /**
      * Add landmark to the database
+     * 在 map-database 中加landmark
      * @param lm
      */
     void add_landmark(std::shared_ptr<landmark>& lm);
 
     /**
      * Erase landmark from the database
+     * 根据 landmark的id 删landmark
      * @param id
      */
     void erase_landmark(unsigned int id);
@@ -91,18 +94,22 @@ public:
 
     /**
      * Set local landmarks
+     * 设置成员变量 local_landmarks_
      * @param local_lms
      */
     void set_local_landmarks(const std::vector<std::shared_ptr<landmark>>& local_lms);
 
     /**
      * Get local landmarks
+     * 返回成员变量 local_landmarks_
      * @return
      */
     std::vector<std::shared_ptr<landmark>> get_local_landmarks() const;
 
     /**
      * Get all of the keyframes in the database
+     * 返回成员变量 unordered_map<unsigned int, std::shared_ptr<keyframe>> keyframes_;
+     * 即 map-database 中的关键帧和其对应ID
      * @return
      */
     std::vector<std::shared_ptr<keyframe>> get_all_keyframes() const;

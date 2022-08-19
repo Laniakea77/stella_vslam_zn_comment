@@ -201,7 +201,8 @@ private:
     //! flag which indicates spanning tree is not set yet or not
     std::atomic<bool> has_spanning_parent_;
 
-    //! loop edges
+    //! loop edges 回环边, 为什么里面是关键帧?
+    //! 按关键帧序号排列的关键帧set
     id_ordered_set<std::weak_ptr<keyframe>> loop_edges_;
 
     //! need mutex for access to connections
