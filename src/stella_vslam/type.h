@@ -77,6 +77,10 @@ using Quat_t = Eigen::Quaterniond;
 
 // STL with Eigen custom allocator
 
+// 标准的定义容器方法
+// 定义数据类型为c++类型时, 可以简写
+// 但是 eigen就不行
+// vector<Eigen::Matrix4d> 报错
 template<typename T>
 using eigen_alloc_vector = std::vector<T, Eigen::aligned_allocator<T>>;
 

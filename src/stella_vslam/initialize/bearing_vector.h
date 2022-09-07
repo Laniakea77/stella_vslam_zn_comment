@@ -12,6 +12,8 @@ class frame;
 
 namespace initialize {
 
+//Bearing is used to give direction in aviation
+// It is defined as a positive angle from 0 to 360 measured clockwise with respect to the north
 class bearing_vector final : public base {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

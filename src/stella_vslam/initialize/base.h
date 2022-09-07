@@ -32,7 +32,8 @@ public:
     virtual ~base() = default;
 
     //! Initialize with the current frame
-    virtual bool initialize(const data::frame& cur_frm, const std::vector<int>& ref_matches_with_cur) = 0;
+    virtual bool initialize(const data::frame& cur_frm, 
+                            const std::vector<int>& ref_matches_with_cur) = 0;
 
     //! Get the rotation from the reference to the current
     Mat33_t get_rotation_ref_to_cur() const;
@@ -78,8 +79,9 @@ protected:
     eigen_alloc_vector<Vec3_t> cur_bearings_;
 
     //-----------------------------------------
-    // matching information
+    // matching information - 匹配信息
 
+    // 参考帧和当前帧之间的匹配
     //! matching between reference and current frames
     std::vector<std::pair<int, int>> ref_cur_matches_;
 
@@ -90,9 +92,10 @@ protected:
     const unsigned int num_ransac_iters_;
     //! min number of triangulated pts
     const unsigned int min_num_triangulated_;
-    //! min parallax
+    //! min parallax // 最小视差
     const float parallax_deg_thr_;
     //! reprojection error threshold
+    // 重投影误差阈值
     const float reproj_err_thr_;
 
     //-----------------------------------------
@@ -105,6 +108,7 @@ protected:
     //! triangulated pts, with respect to indices of reference frame
     eigen_alloc_vector<Vec3_t> triangulated_pts_;
     //! each indices of reference frame is successfully triangulated or not
+    // 是否三角化成功
     std::vector<bool> is_triangulated_;
 };
 

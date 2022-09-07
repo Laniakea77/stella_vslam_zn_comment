@@ -14,9 +14,10 @@ struct frame_observation {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     frame_observation() = default;
-    frame_observation(unsigned int num_keypts, const cv::Mat& descriptors,
-                      const std::vector<cv::KeyPoint>& undist_keypts, 
-                      const eigen_alloc_vector<Vec3_t>& bearings,
+    frame_observation(unsigned int num_keypts, const cv::Mat& descriptors, // keypoint数目,描述子
+                      const std::vector<cv::KeyPoint>& undist_keypts, // keypoint vector
+                      // eigen_alloc_vector = std::vector<T, Eigen::aligned_allocator<T>>;
+                      const eigen_alloc_vector<Vec3_t>& bearings, 
                       const std::vector<float>& stereo_x_right, 
                       const std::vector<float>& depths,
                       const std::vector<std::vector<std::vector<unsigned int>>>& keypt_indices_in_cells)

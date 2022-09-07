@@ -8,30 +8,42 @@ namespace stella_vslam {
 namespace initialize {
 
 bearing_vector::bearing_vector(const data::frame& ref_frm,
-                               const unsigned int num_ransac_iters, const unsigned int min_num_triangulated,
-                               const float parallax_deg_thr, const float reproj_err_thr,
+                               const unsigned int num_ransac_iters, 
+                               const unsigned int min_num_triangulated,
+                               const float parallax_deg_thr, 
+                               const float reproj_err_thr,
                                bool use_fixed_seed)
     : base(ref_frm, num_ransac_iters, min_num_triangulated, parallax_deg_thr, reproj_err_thr),
       use_fixed_seed_(use_fixed_seed) {
-    spdlog::debug("CONSTRUCT: initialize::bearing_vector");
+    spdlog::debug("CONSTRUCT: initialize::bearing_vector - 构造函数");
 }
 
 bearing_vector::~bearing_vector() {
-    spdlog::debug("DESTRUCT: initialize::bearing_vector");
+    spdlog::debug("DESTRUCT: initialize::bearing_vector - 析构函数");
 }
 
-bool bearing_vector::initialize(const data::frame& cur_frm, const std::vector<int>& ref_matches_with_cur) {
+bool bearing_vector::initialize(const data::frame& cur_frm, // 当前帧
+                                // 与当前帧匹配上帧的id ?
+                                // matching indices 
+                                // (index: idx of initial frame, value: idx of current frame)
+                                const std::vector<int>& ref_matches_with_cur) // 
+    {
     // set the current camera model
     cur_camera_ = cur_frm.camera_;
+
     // store the keypoints and bearings
     cur_undist_keypts_ = cur_frm.frm_obs_.undist_keypts_;
     cur_bearings_ = cur_frm.frm_obs_.bearings_;
+
     // align matching information
     ref_cur_matches_.clear();
+    // 当前帧和参考帧之间以 keypoint 的个数构造 ref_cur_matches_ 大小
     ref_cur_matches_.reserve(cur_frm.frm_obs_.undist_keypts_.size());
+
     for (unsigned int ref_idx = 0; ref_idx < ref_matches_with_cur.size(); ++ref_idx) {
         const auto cur_idx = ref_matches_with_cur.at(ref_idx);
         if (0 <= cur_idx) {
+            // emplace_back 容器尾部添加一个元素
             ref_cur_matches_.emplace_back(std::make_pair(ref_idx, cur_idx));
         }
     }
