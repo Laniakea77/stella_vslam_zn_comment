@@ -25,15 +25,18 @@ perspective::~perspective() {
     spdlog::debug("DESTRUCT: initialize::perspective");
 }
 
-bool perspective::initialize(const data::frame& cur_frm, const std::vector<int>& ref_matches_with_cur) {
+bool perspective::initialize(const data::frame& cur_frm,
+                             const std::vector<int>& ref_matches_with_cur) {
     // set the current camera model
     cur_camera_ = cur_frm.camera_;
     // store the keypoints and bearings
     cur_undist_keypts_ = cur_frm.frm_obs_.undist_keypts_;
+    // https://zhuanlan.zhihu.com/p/246420492?ivk_sa=1024320u
     cur_bearings_ = cur_frm.frm_obs_.bearings_;
     // align matching information
     ref_cur_matches_.clear();
     ref_cur_matches_.reserve(cur_frm.frm_obs_.undist_keypts_.size());
+
     for (unsigned int ref_idx = 0; ref_idx < ref_matches_with_cur.size(); ++ref_idx) {
         const auto cur_idx = ref_matches_with_cur.at(ref_idx);
         if (0 <= cur_idx) {
@@ -48,12 +51,13 @@ bool perspective::initialize(const data::frame& cur_frm, const std::vector<int>&
     const float sigma = 1.0f;
     auto homography_solver = solve::homography_solver(ref_undist_keypts_, cur_undist_keypts_, ref_cur_matches_, sigma, use_fixed_seed_);
     auto fundamental_solver = solve::fundamental_solver(ref_undist_keypts_, cur_undist_keypts_, ref_cur_matches_, sigma, use_fixed_seed_);
+    
     std::thread thread_for_H(&solve::homography_solver::find_via_ransac, &homography_solver, num_ransac_iters_, true);
     std::thread thread_for_F(&solve::fundamental_solver::find_via_ransac, &fundamental_solver, num_ransac_iters_, true);
     thread_for_H.join();
     thread_for_F.join();
 
-    // compute a score
+    // 计算得分
     const auto score_H = homography_solver.get_best_score();
     const auto score_F = fundamental_solver.get_best_score();
     const float rel_score_H = score_H / (score_H + score_F);

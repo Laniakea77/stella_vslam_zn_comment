@@ -28,23 +28,33 @@ std::vector<bool> base::get_triangulated_flags() const {
     return is_triangulated_;
 }
 
-bool base::find_most_plausible_pose(const eigen_alloc_vector<Mat33_t>& init_rots, const eigen_alloc_vector<Vec3_t>& init_transes,
-                                    const std::vector<bool>& is_inlier_match, const bool depth_is_positive) {
+bool base::find_most_plausible_pose(const eigen_alloc_vector<Mat33_t>& init_rots,
+                                    const eigen_alloc_vector<Vec3_t>& init_transes,
+                                    const std::vector<bool>& is_inlier_match, 
+                                    const bool depth_is_positive) {
     assert(init_rots.size() == init_transes.size());
     const auto num_hypothesis = init_rots.size();
 
+    // 直接用结构或类 map point 替代不行吗
     // triangulated 3D points
     std::vector<eigen_alloc_vector<Vec3_t>> init_triangulated_pts(num_hypothesis);
     // valid/invalid flag for each 3D point
     std::vector<std::vector<bool>> init_is_triangulated(num_hypothesis);
+    // 每个 3d 点 在两次观测中的视差
     // parallax between the two observations of each 3D point
     std::vector<float> init_parallax(num_hypothesis);
+    // 
     // number of valid 3D points
     std::vector<unsigned int> nums_valid_pts(num_hypothesis);
 
     for (unsigned int i = 0; i < num_hypothesis; ++i) {
-        nums_valid_pts.at(i) = check_pose(init_rots.at(i), init_transes.at(i), is_inlier_match, depth_is_positive,
-                                          init_triangulated_pts.at(i), init_is_triangulated.at(i), init_parallax.at(i));
+        nums_valid_pts.at(i) = check_pose(init_rots.at(i), 
+                                          init_transes.at(i), 
+                                          is_inlier_match, 
+                                          depth_is_positive,
+                                          init_triangulated_pts.at(i), 
+                                          init_is_triangulated.at(i), 
+                                          init_parallax.at(i));
     }
 
     rot_ref_to_cur_ = Mat33_t::Zero();
@@ -82,16 +92,23 @@ bool base::find_most_plausible_pose(const eigen_alloc_vector<Mat33_t>& init_rots
 
     return true;
 }
-
-unsigned int base::check_pose(const Mat33_t& rot_ref_to_cur, const Vec3_t& trans_ref_to_cur,
-                              const std::vector<bool>& is_inlier_match, const bool depth_is_positive,
-                              eigen_alloc_vector<Vec3_t>& triangulated_pts, std::vector<bool>& is_triangulated,
+//
+//                            // 相对于当前帧的R,t
+unsigned int base::check_pose(const Mat33_t& rot_ref_to_cur, 
+                              const Vec3_t& trans_ref_to_cur,
+                              const std::vector<bool>& is_inlier_match, 
+                              const bool depth_is_positive,
+                              // ?
+                              eigen_alloc_vector<Vec3_t>& triangulated_pts, 
+                              std::vector<bool>& is_triangulated,
                               float& parallax_deg) {
     // = cos(0.5deg)
     constexpr float cos_parallax_thr = 0.99996192306;
+    // 重投影误差阈值平方
     const float reproj_err_thr_sq = reproj_err_thr_ * reproj_err_thr_;
 
     // resize buffers according to the number of observed keypoints in the reference
+    // 参考关键帧中的 keypoint
     is_triangulated.resize(ref_undist_keypts_.size(), false);
     triangulated_pts.resize(ref_undist_keypts_.size());
 
@@ -105,6 +122,7 @@ unsigned int base::check_pose(const Mat33_t& rot_ref_to_cur, const Vec3_t& trans
     unsigned int num_valid_pts = 0;
 
     // for each matching, triangulate a 3D point and compute a parallax and a reprojection error
+    // 对于每对匹配, 三角化对应的 3D 点, 计算视差和重投影误差
     for (unsigned int i = 0; i < ref_cur_matches_.size(); ++i) {
         if (!is_inlier_match.at(i)) {
             continue;
